@@ -20,11 +20,16 @@ app.use(cors());
 // ===============================
 // ✅ MongoDB Connection
 // ===============================
-const MONGO_URL = process.env.MONGO_URL;
+const MONGO_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 5000;
 
+if (!MONGO_URI) {
+    console.error("❌ Error: MONGO_URI not defined. Please check your .env or Render environment settings.");
+    process.exit(1);
+}
+
 mongoose
-    .connect(MONGO_URL, {
+    .connect(MONGO_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })

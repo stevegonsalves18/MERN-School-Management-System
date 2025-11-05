@@ -16,16 +16,28 @@ dotenv.config();
 app.use(express.json({ limit: '10mb' }))
 app.use(cors())
 
+// Check if MONGO_URI is defined
+if (!process.env.MONGO_URI) {
+    console.error("❌ Error: MONGO_URI not defined. Please check your .env or Render environment settings.");
+    process.exit(1);
+}
+
+console.log("📝 Attempting to connect to MongoDB...");
+
 mongoose
-    .connect(process.env.MONGO_URL, {
+    .connect(process.env.MONGO_URI, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     })
-    .then(console.log("Connected to MongoDB"))
-    .catch((err) => console.log("NOT CONNECTED TO NETWORK", err))
+    .then(() => console.log("✅ Connected to MongoDB successfully"))
+    .catch((err) => {
+        console.error("❌ MongoDB Connection Error:", err.message);
+        console.log("Connection string format should be: mongodb://... or mongodb+srv://...");
+        process.exit(1);
+    })
 
 app.use('/', Routes);
 
 app.listen(PORT, () => {
-    console.log(`Server started at port no. ${PORT}`)
+    console.log(`🚀 Server started on port ${PORT}`)
 })

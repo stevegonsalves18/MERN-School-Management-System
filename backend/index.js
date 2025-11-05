@@ -16,6 +16,16 @@ dotenv.config();
 app.use(express.json({ limit: '10mb' }))
 app.use(cors())
 
+// Root route to avoid "Cannot GET /" on service URL
+app.get('/', (req, res) => {
+    res.send('MERN School Management API is running.');
+});
+
+// Simple health check endpoint for uptime monitoring
+app.get('/healthz', (req, res) => {
+    res.status(200).json({ status: 'ok', uptime: process.uptime() });
+});
+
 // Check if MONGO_URI is defined
 if (!process.env.MONGO_URI) {
     console.error("❌ Error: MONGO_URI not defined. Please check your .env or Render environment settings.");

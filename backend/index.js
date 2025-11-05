@@ -2,6 +2,7 @@ const express = require("express")
 const cors = require("cors")
 const mongoose = require("mongoose")
 const dotenv = require("dotenv")
+const path = require("path")
 // const bodyParser = require("body-parser")
 const app = express()
 const Routes = require("./routes/route.js")
@@ -16,12 +17,7 @@ dotenv.config();
 app.use(express.json({ limit: '10mb' }))
 app.use(cors())
 
-// Root route to avoid "Cannot GET /" on service URL
-app.get('/', (req, res) => {
-    res.send('MERN School Management API is running.');
-});
-
-// Simple health check endpoint for uptime monitoring
+// Simple health check endpoint for uptime monitoring (kept for probes)
 app.get('/healthz', (req, res) => {
     res.status(200).json({ status: 'ok', uptime: process.uptime() });
 });
@@ -46,7 +42,17 @@ mongoose
         process.exit(1);
     })
 
+// API routes
 app.use('/', Routes);
+
+// Serve frontend build (SPA) if present
+const frontendBuildPath = path.join(__dirname, "../frontend/build");
+app.use(express.static(frontendBuildPath));
+
+// SPA fallback: send index.html for all non-API GET requests
+app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendBuildPath, 'index.html'));
+});
 
 app.listen(PORT, () => {
     console.log(`🚀 Server started on port ${PORT}`)
